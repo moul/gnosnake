@@ -57,10 +57,18 @@ for mod in $(find p r -name gnomod.toml | sort); do
   esac
 done
 
-# gnopm needs a lock to resolve a workspace. _stage/ is regenerated from
-# scratch every time, so this one is derived, never committed and never the
-# authority: the repository's own gnomod.lock is.
-gnopm -C _stage sync >/dev/null
+# gnopm needs a lock to resolve a workspace. _stage/ is regenerated from scratch
+# every time, so this one is derived, never committed and never the authority:
+# the repository's own gnomod.lock is.
+#
+# Optional, because only publishing needs it. CI stages on every run to check
+# that the twin still builds, and a hard dependency on a second tool there made
+# the whole gate red for a reason that had nothing to do with the change.
+if command -v gnopm >/dev/null 2>&1; then
+  gnopm -C _stage sync >/dev/null
+else
+  echo "note: gnopm is not installed, so _stage has no lock. Only publishing needs one." >&2
+fi
 
 echo
 echo "_stage/ is what gets published. Publish with: make publish-print"
