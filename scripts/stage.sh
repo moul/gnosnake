@@ -4,8 +4,11 @@
 # Two things this fixes that deploying straight from the repository does not.
 #
 # 1. `gnokey maketx addpkg` packs the directory with MPUserAll, which INCLUDES
-#    *_test.gno. Deploying from the working tree would put the whole test suite
-#    on chain and pay a storage deposit on it forever. Measured on this repo:
+#    *_test.gno (gno.land/pkg/keyscli/addpkg.go). Deploying from the working
+#    tree would put the whole test suite on chain and pay a storage deposit on
+#    it forever, at 100 ugnot/byte, for bytes nobody on chain can run. The
+#    monorepo's own tools/gnopublish avoids this by packing MPUserProd instead;
+#    this does the same thing with a directory. Measured on this repo:
 #    the realm is 39,134 bytes with tests and 22,366 without, so 43% of a
 #    permanent deposit would buy nothing a reader of the chain can run.
 #
