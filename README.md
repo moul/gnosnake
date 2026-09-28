@@ -7,6 +7,7 @@
 
 <p align="center">
   <a href="https://github.com/moul/gnosnake/actions/workflows/ci.yml"><img src="https://github.com/moul/gnosnake/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://mygnoscan.moul.p2p.team/realm/r/moul/gnosnake"><img src="https://mygnoscan.moul.p2p.team/_badges/shield/status/r/moul/gnosnake?network=mainnet" alt="realm status on mainnet"></a>
   <a href="./CHECKLIST.md"><img src="https://img.shields.io/badge/web2.5-checklist-22c55e" alt="checklist"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-97ca00.svg" alt="License"></a>
 </p>
