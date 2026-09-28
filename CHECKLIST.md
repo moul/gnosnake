@@ -60,6 +60,11 @@ Tracking issue: [moul/gno-contracts#249](https://github.com/moul/gno-contracts/i
 - [x] **`private = true` while the design is still moving.** It is the most consequential
   line in the repository: a public path can never be redeployed, on any chain, ever.
   Going public is a one-way door and gets taken deliberately, once.
+- [x] **Nothing is deployed from the working tree.** `gnokey maketx addpkg` packs a
+  directory with `MPUserAll`, which includes `*_test.gno`, so deploying from the repository
+  would put the whole test suite on chain and pay a permanent storage deposit on it.
+  `make stage` builds what actually goes up. Measured here: 24221 bytes against 43977, so 45% of
+  the deposit would have bought nothing a reader of the chain can run.
 - [x] **The version lives in `gnomod.toml`, not in a directory name.** `gnopm` exists for
   this: a bump is a one-line diff instead of a copied directory git cannot pair.
 - [x] **No realm hardcodes its own package path.** The same source is deployed twice, and a

@@ -44,6 +44,13 @@ make repin   # after any deliberate change to Render. Then read the diff.
 - **A raw string literal cannot contain a backtick**, and the pinned pages contain fenced
   code blocks. `{BT}` stands in for one and the test restores it.
 
+## Deploying
+
+`make stage` builds `_stage/`, which is what actually goes on chain: source, README and
+`gnomod.toml`, no tests. Nothing is ever published from the working tree, because
+`addpkg` packs `*_test.gno` too and the storage deposit on them is permanent.
+`make publish-print` prints the transactions and runs nothing.
+
 ## Adding a page to Render
 
 1. Write it, with no current height and no clock in it.

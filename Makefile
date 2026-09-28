@@ -12,6 +12,7 @@ export GNOROOT
 
 REALM  := $(shell sed -n 's/^module = "\(.*\)"/\1/p' r/moul/gnosnake/gnomod.toml)
 KEY    ?= moul
+ADDR   ?= g1manfred47kzduec920z88wfr64ylksmdcedlf5
 CHAIN  ?= gnoland-1
 REMOTE ?= https://rpc.gno.land:443
 
@@ -47,14 +48,14 @@ dev: ## a local chain with these packages loaded, at http://127.0.0.1:8888
 
 ##@ Deploying
 
-stage: ## build the /preview twin: same source, second path, private = true
+stage: ## build _stage/: what actually goes on chain, tests stripped, plus the /preview twin
 	@./scripts/stage.sh
 
-publish-print: ## print the transactions that would publish this, and run nothing
-	@gnopm publish -print -addr $(KEY)
+publish-print: stage ## print the transactions that would publish _stage/, and run nothing
+	@gnopm -C _stage publish -print -addr $(ADDR)
 
-republish-print: ## print the transaction that redeploys the private /preview twin
-	@$(MAKE) --no-print-directory stage && gnopm -C _stage publish -print -republish $(REALM)/preview -addr $(KEY)
+republish-print: stage ## print the transaction that redeploys the private /preview twin
+	@gnopm -C _stage publish -print -republish $(REALM)/preview -addr $(ADDR)
 
 ##@ The web front-end
 
