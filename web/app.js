@@ -106,6 +106,8 @@ async function refresh() {
       : `<p class="fine">Nothing verified yet.</p>`;
     say(`${rows.length} verified runs on ${state.netName}`, "live");
   } catch (err) {
+    // An empty panel reads as "still loading" forever. Say what happened.
+    $("leaderboard").innerHTML = `<p class="fine">Nothing to read here: the realm is not deployed on this network yet, or the node did not answer.</p>`;
     say(`${state.netName}: ${err.message}`, "bad");
   }
 }
