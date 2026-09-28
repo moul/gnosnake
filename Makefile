@@ -51,8 +51,11 @@ dev: ## a local chain with these packages loaded, at http://127.0.0.1:8888
 stage: ## build _stage/: what actually goes on chain, tests stripped, plus the /preview twin
 	@./scripts/stage.sh
 
-publish-print: stage ## print the transactions that would publish _stage/, and run nothing
+publish-print: stage ## print the publish report and the script, and run nothing
 	@gnopm -C _stage publish -print -addr $(ADDR)
+
+publish.sh: stage ## write just the runnable script, ready to read and then run
+	@./scripts/publish-script.sh $(ADDR)
 
 republish-print: stage ## print the transaction that redeploys the private /preview twin
 	@gnopm -C _stage publish -print -republish $(REALM)/preview -addr $(ADDR)

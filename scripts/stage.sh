@@ -37,6 +37,7 @@ copy() { # <srcdir> <destdir> — source, README and gnomod.toml. No tests.
 
 bytes() { find "$1" -type f -exec cat {} + | wc -c | tr -d ' '; }
 
+exec 3>&1 1>&2   # everything below is commentary; keep stdout clean for a pipe
 printf '%-44s %10s %10s\n' package "on chain" "in repo"
 for mod in $(find p r -name gnomod.toml | sort); do
   src="$(dirname "$mod")"
@@ -63,3 +64,4 @@ gnopm -C _stage sync >/dev/null
 
 echo
 echo "_stage/ is what gets published. Publish with: make publish-print"
+exec 1>&3 3>&-
