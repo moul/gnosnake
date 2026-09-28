@@ -62,7 +62,28 @@ for m in $(mods); do
 done
 [ -z "$msg" ] && ok "$g" || { bad "$g"; echo "$msg"; }
 
-# 5. vendor/ must be complete, so a build needs no chain and no cache. The
+# 5. A package's NAME must equal the last element of its path, ignoring a
+#    version suffix. The chain enforces it at deploy time and `gno lint` does
+#    not, so without this guard the first thing that tells you is a transaction
+#    you already paid for. One did: a preview realm at .../gno4/preview
+#    declaring `package gno4` was refused with "package name gno4 does not match
+#    path element preview", and it reverted the production realm batched beside
+#    it in the same transaction (2026-09-28).
+g=guard-pkgname; msg=""
+for m in $(mods); do
+  d="$(dirname "$m")"
+  path="$(sed -n 's/^module = "\(.*\)"/\1/p' "$m")"
+  last="${path##*/}"
+  case "$last" in v[0-9]*) stem="${path%/*}"; last="${stem##*/}" ;; esac
+  for f in "$d"/*.gno; do
+    [ -e "$f" ] || continue
+    got="$(sed -n 's/^package \([a-zA-Z0-9_]*\).*/\1/p' "$f" | head -1)"
+    [ "$got" = "$last" ] || msg+=$'\n'"  $f says 'package $got'; $path requires '$last'"
+  done
+done
+[ -z "$msg" ] && ok "$g" || { bad "$g"; echo "$msg"; }
+
+# 6. vendor/ must be complete, so a build needs no chain and no cache. The
 #    public RPC answers 403 under load, and a dependency fetched at build time
 #    is a build that fails for reasons that have nothing to do with the change.
 g=guard-vendor; msg=""

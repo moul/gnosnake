@@ -50,11 +50,11 @@ jobs:
             exit 1
           }
 
-      # Publishability: the realm and its /preview twin must both be things the
+      # Publishability: the realm and its staging twin must both be things the
       # chain would accept. Catching a bad module line here costs nothing;
       # catching it during a deploy costs a package path, permanently.
-      - name: The /preview twin builds from the same source
+      - name: The staging twin builds from the same source
         run: |
           make stage
-          test -f _stage/r/moul/gnosnake/preview/gnomod.toml
-          grep -q '^private = true' _stage/r/moul/gnosnake/preview/gnomod.toml
+          test -f _stage/r/moul/preview/gnosnake/gnomod.toml
+          grep -q '^private = true' _stage/r/moul/preview/gnosnake/gnomod.toml

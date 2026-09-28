@@ -129,8 +129,8 @@ gas for, which is why the board is 16 by 16 and the limit exists at all. That is
 the trade this whole corner is about: verification is not free, and the question
 is whether the thing you are verifying is worth the ticks.
 
-There are two deployments of this same source: this one, and a ` + "`/preview`" + `
-twin flagged ` + "`private = true`" + ` so it stays redeployable while the design
+There are two deployments of this same source: this one, and a ` + "`r/moul/preview/gnosnake`" + `
+flagged ` + "`private = true`" + ` so it stays redeployable while the design
 is still moving. A public path can never be redeployed.
 
 The repository, the checklist and the other three:

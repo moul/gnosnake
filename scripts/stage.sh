@@ -13,9 +13,16 @@
 #    permanent deposit would buy nothing a reader of the chain can run.
 #
 # 2. There is no testnet to stage on, so the staging environment is a second
-#    realm on the same chain: gno.land/r/<ns>/<name>/preview, flagged
+#    realm on the same chain: gno.land/r/<ns>/preview/<name>, flagged
 #    private = true so the path stays redeployable while the design moves. The
 #    production path is deployed once and is then permanent.
+#
+#    "preview" goes BEFORE the last element, not after it. The chain requires a
+#    package's name to equal the last element of its path, so .../gno4/preview
+#    would have to declare `package preview` and would no longer be the same
+#    source. It answered that itself, in a transaction that cost real gas:
+#    "package name gno4 does not match path element preview", which reverted the
+#    production realm batched beside it (2026-09-28).
 #
 # Only gnomod.toml differs between the two. If anything else ever has to, the
 # design is wrong: a realm that behaves differently in staging is not the thing
@@ -52,10 +59,20 @@ for mod in $(find p r -name gnomod.toml | sort); do
   # and immutable, so a second copy would just spend another path.
   case "$src" in
     r/*)
-      out="_stage/${path#gno.land/}/preview"
+      preview="${path%/*}/preview/${path##*/}"
+      out="_stage/${preview#gno.land/}"
       copy "$src" "$out"
-      printf 'module = "%s/preview"\ngno = "0.9"\nprivate = true\n' "$path" > "$out/gnomod.toml"
-      printf '%-44s %10s %10s\n' "$path/preview" "$(bytes "$out")" "-"
+      printf 'module = "%s"\ngno = "0.9"\nprivate = true\n' "$preview" > "$out/gnomod.toml"
+      # The same rule guard-pkgname enforces on the tree, asserted on the copy
+      # this script generates, because nothing else looks at _stage/ before a
+      # transaction does.
+      want="${preview##*/}"
+      got="$(sed -n 's/^package \([a-zA-Z0-9_]*\).*/\1/p' "$out"/*.gno | head -1)"
+      [ "$got" = "$want" ] || {
+        echo "staged $preview declares 'package $got', the chain requires '$want'" >&2
+        exit 1
+      }
+      printf '%-44s %10s %10s\n' "$preview" "$(bytes "$out")" "-"
       ;;
   esac
 done
