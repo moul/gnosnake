@@ -1,0 +1,3 @@
+# This file marks a gno workspace. Empty is correct: gno resolves
+# every package underneath it by the module line in its gnomod.toml,
+# not by its directory name. Created by `gnopm init`.

@@ -1,0 +1,38 @@
+name: Pages
+
+# Deploy the front-end, and only a commit CI actually passed.
+#
+# This used to be a plain `push` trigger in other repositories of mine, which
+# meant it raced CI and shipped commits that failed it. workflow_run plus the
+# explicit head_sha checkout is what closes that.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions: { contents: read, pages: write, id-token: write }
+concurrency: { group: pages, cancel-in-progress: true }
+
+jobs:
+  deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # workflow_run checks out the default branch's HEAD, which is not
+          # necessarily the commit CI just verified.
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+      # No build step on purpose: web/ is what gets served, byte for byte, so
+      # what you debug locally is what is deployed.
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: web }
+      - id: deployment
+        uses: actions/deploy-pages@v4

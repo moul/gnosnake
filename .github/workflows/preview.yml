@@ -1,0 +1,42 @@
+name: Preview
+
+# Every page this realm renders, posted on the pull request that changes them.
+#
+# A realm's Render is its product, and a diff of Go source does not show what a
+# page will look like. This runs the repository's own fixture, renders every
+# page from it, and posts the result in one sticky comment. No chain, no
+# secrets, no deploy: it is the same code path the pinned tests use.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-gno
+        with: { binaries: gno }
+
+      - name: Render every page
+        run: |
+          {
+            echo "## What the realm renders, on this branch"
+            echo
+            python3 scripts/repin.py --print
+            echo
+            echo "---"
+            echo "The front-end is static: \`make web\` serves \`web/\` at http://127.0.0.1:8080, no build and no install."
+          } > /tmp/preview.md
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: preview
+          path: /tmp/preview.md

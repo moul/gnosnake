@@ -1,0 +1,60 @@
+name: CI
+
+# The gate. Everything here also runs locally as `make ci`, deliberately: a
+# check that only exists in CI is a check nobody runs before pushing.
+on:
+  push: { branches: [main] }
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The JS engine is a second implementation of the on-chain rules. It has no
+  # dependencies and no build step, so this job is seconds and needs no
+  # toolchain at all: it gives a pull request an answer before the gno build
+  # has finished cloning.
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: The browser engine agrees with the gno fixtures
+        run: node web/engine.test.js
+
+  gno:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-gno
+        with: { binaries: gno }
+      - run: gno version
+
+      # The guards first: they are seconds, they need no toolchain warm-up, and
+      # three of the five catch mistakes that are permanent once a transaction
+      # lands.
+      - run: make guards
+      - run: make lint
+      - run: make test
+
+      # A pinned Render that nobody regenerates is a pin that stops matching the
+      # page. `make repin` is generated output, so CI asserts it is current: if
+      # this fails, run `make repin` and read the diff before committing it.
+      - name: The pinned pages are current
+        run: |
+          make repin
+          git diff --exit-code -- '*_test.gno' || {
+            echo "::error::Render changed and the pins were not regenerated. Run 'make repin'."
+            exit 1
+          }
+
+      # Publishability: the realm and its /preview twin must both be things the
+      # chain would accept. Catching a bad module line here costs nothing;
+      # catching it during a deploy costs a package path, permanently.
+      - name: The /preview twin builds from the same source
+        run: |
+          make stage
+          test -f _stage/r/moul/gnosnake/preview/gnomod.toml
+          grep -q '^private = true' _stage/r/moul/gnosnake/preview/gnomod.toml

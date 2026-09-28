@@ -1,0 +1,32 @@
+/* No framework, no build step. The board colours are the realm's colours, so a
+   run drawn here and one drawn by gnoweb are the same picture. */
+:root { --board:#0b1120; --grid:#16203a; --body:#22c55e; --head:#bbf7d0; --food:#ef4444; --dead:#f87171;
+        --ink:#0f172a; --bg:#fff; --panel:#f8fafc; --line:#e2e8f0; --muted:#64748b; }
+@media (prefers-color-scheme: dark) { :root { --ink:#e2e8f0; --bg:#0b1120; --panel:#111a2e; --line:#1e293b; --muted:#94a3b8; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+header { padding:1.5rem clamp(1rem,4vw,3rem) 0; }
+h1 { margin:0; font-size:1.9rem; letter-spacing:-.02em; }
+h2 { font-size:.8rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:1.4rem 0 .5rem; }
+.tagline { margin:.2rem 0 1rem; color:var(--muted); }
+nav { display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; padding-bottom:1rem; border-bottom:1px solid var(--line); }
+nav label { color:var(--muted); font-size:.85rem; }
+select,button { font:inherit; color:inherit; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:.4rem .7rem; }
+button { cursor:pointer; } button:hover { border-color:var(--body); }
+button.link { background:none; border:none; color:var(--muted); text-decoration:underline; padding:0; }
+.status { font-size:.85rem; color:var(--muted); margin-left:auto; }
+.status.live { color:#16a34a; } .status.bad { color:#c0392b; }
+main { display:grid; grid-template-columns:minmax(300px,1fr) minmax(280px,24rem); gap:clamp(1rem,3vw,2.5rem); padding:1.5rem clamp(1rem,4vw,3rem) 3rem; align-items:start; }
+@media (max-width:820px) { main { grid-template-columns:1fr; } }
+#board { width:100%; max-width:440px; height:auto; border-radius:10px; display:block; image-rendering:pixelated; }
+.hud { display:flex; gap:1.2rem; font-size:.9rem; color:var(--muted); margin:.7rem 0 .4rem; flex-wrap:wrap; }
+.hud b { color:var(--ink); }
+.board-meta { display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; }
+.msg { min-height:1.4em; font-size:.9rem; color:#c0392b; }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+#leaderboard { display:grid; gap:.3rem; font-size:.8rem; color:var(--muted); font-family:ui-monospace,monospace; }
+pre { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:.7rem; overflow-x:auto; font-size:.78rem; white-space:pre-wrap; }
+footer { margin-top:2rem; border-top:1px solid var(--line); padding-top:1rem; font-size:.85rem; color:var(--muted); }
+footer a { color:inherit; }
+.fine { font-size:.85rem; }
+p { color:var(--muted); font-size:.9rem; }

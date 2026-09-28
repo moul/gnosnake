@@ -1,0 +1,55 @@
+name: Set up gno
+description: >
+  Build the gno toolchain from gnolang/gno master, outside the workspace, and
+  export GNOROOT. Cached on the upstream commit, so a run only pays for the
+  build when master has actually moved.
+
+inputs:
+  binaries:
+    description: which binaries to build, space separated (gno, gnokey, gnodev)
+    required: false
+    default: gno
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-go@v5
+      with: { go-version: "1.25" }
+
+    # Resolving the SHA first is what makes the cache key honest: keying on
+    # "master" would serve a stale binary forever.
+    - id: upstream
+      shell: bash
+      run: echo "sha=$(git ls-remote https://github.com/gnolang/gno HEAD | cut -f1)" >> "$GITHUB_OUTPUT"
+
+    - id: cache
+      uses: actions/cache@v4
+      with:
+        path: ~/gno-bin
+        key: gno-bin-${{ runner.os }}-${{ steps.upstream.outputs.sha }}-${{ inputs.binaries }}
+
+    # The clone happens either way: GNOROOT is a source tree, not a binary, and
+    # the toolchain reads the stdlibs out of it. It must live OUTSIDE the
+    # workspace, or gnowork.toml would discover the toolchain's own examples/
+    # and they would shadow this repository's committed vendor/.
+    - shell: bash
+      env:
+        BINARIES: ${{ inputs.binaries }}
+        CACHED: ${{ steps.cache.outputs.cache-hit }}
+      run: |
+        set -euo pipefail
+        git clone --quiet --depth 1 https://github.com/gnolang/gno "$HOME/gno"
+        echo "GNOROOT=$HOME/gno" >> "$GITHUB_ENV"
+        echo "$HOME/gno-bin" >> "$GITHUB_PATH"
+        mkdir -p "$HOME/gno-bin"
+        [ "$CACHED" = "true" ] && { echo "restored from cache: $BINARIES"; exit 0; }
+        for b in $BINARIES; do
+          case "$b" in
+            gno)    dir="$HOME/gno";                 pkg=./gnovm/cmd/gno ;;
+            gnokey) dir="$HOME/gno";                 pkg=./gno.land/cmd/gnokey ;;
+            # gnodev lives in contribs/, which is its OWN Go module.
+            gnodev) dir="$HOME/gno/contribs/gnodev"; pkg=. ;;
+            *) echo "::error::unknown gno binary '$b'"; exit 1 ;;
+          esac
+          ( cd "$dir" && GOTOOLCHAIN=auto go build -o "$HOME/gno-bin/$b" "$pkg" )
+        done

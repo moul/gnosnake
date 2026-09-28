@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>gnosnake — a leaderboard that does not have to believe you</title>
+<meta name="description" content="Snake on gno.land. You do not submit a score, you submit the moves; the realm replays them and works the score out itself.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230b1120'/><rect x='4' y='14' width='6' height='6' fill='%2322c55e'/><rect x='11' y='14' width='6' height='6' fill='%2322c55e'/><rect x='18' y='14' width='6' height='6' fill='%23bbf7d0'/><circle cx='27' cy='8' r='3' fill='%23ef4444'/></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>gnosnake</h1>
+  <p class="tagline">You do not submit a score. You submit the moves.</p>
+  <nav>
+    <label>network
+      <select id="network">
+        <option value="mainnet">mainnet · r/moul/gnosnake</option>
+        <option value="preview">preview · r/moul/gnosnake/preview</option>
+        <option value="local">local gnodev</option>
+      </select>
+    </label>
+    <button id="connect" type="button">Connect wallet</button>
+    <span id="status" class="status">reading only — no wallet needed</span>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <canvas id="board" width="512" height="512" aria-label="the snake board"></canvas>
+    <p class="hud">
+      <span>score <b id="score">0</b></span>
+      <span>ticks <b id="ticks">0</b></span>
+      <span id="state">press an arrow key to start</span>
+    </p>
+    <p class="board-meta">
+      <button id="play" type="button">New run</button>
+      <button id="submit" type="button">Submit this run</button>
+      <button id="share" type="button" class="link">copy the run</button>
+    </p>
+    <p id="msg" class="msg"></p>
+  </section>
+
+  <aside>
+    <h2>How this works</h2>
+    <p>Take a seed from the realm, play, then send the <b>moves</b>. The realm replays them
+    and computes the score itself, so nobody can claim a score their moves did not produce
+    and anybody can re-derive every line of the board.</p>
+    <p>What that does <b>not</b> prove is that a human played. A bot's moves replay exactly
+    as well as a person's. The realm says so on its own page rather than implying otherwise.</p>
+
+    <h2>Leaderboard</h2>
+    <div id="leaderboard"></div>
+
+    <details id="fallback">
+      <summary>No wallet? The commands that do the same thing</summary>
+      <pre id="cmd" class="mono"></pre>
+    </details>
+
+    <footer>
+      <p><a id="link-realm" href="https://gno.land/r/moul/gnosnake">the realm in gnoweb</a> ·
+         <a href="https://github.com/moul/gnosnake">the source</a> ·
+         <a href="https://github.com/moul/gnosnake/blob/main/CHECKLIST.md">the checklist</a></p>
+      <p class="fine">Part of an exploration of what a web2.5 app on gno.land actually needs.</p>
+    </footer>
+  </aside>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>
