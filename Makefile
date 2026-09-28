@@ -10,7 +10,10 @@
 GNOROOT ?= $(HOME)/p/gh/gnolang/gno
 export GNOROOT
 
-REALM  := $(shell sed -n 's/^module = "\(.*\)"/\1/p' r/moul/gnosnake/gnomod.toml)
+REALM   := $(shell sed -n 's/^module = "\(.*\)"/\1/p' r/moul/gnosnake/gnomod.toml)
+# The staging twin. "preview" goes BEFORE the last element: the chain requires a
+# package's name to equal the last element of its path.
+PREVIEW := $(dir $(REALM))preview/$(notdir $(REALM))
 KEY    ?= moul
 ADDR   ?= g1manfred47kzduec920z88wfr64ylksmdcedlf5
 CHAIN  ?= gnoland-1
@@ -48,7 +51,7 @@ dev: ## a local chain with these packages loaded, at http://127.0.0.1:8888
 
 ##@ Deploying
 
-stage: ## build _stage/: what actually goes on chain, tests stripped, plus the /preview twin
+stage: ## build _stage/: what actually goes on chain, tests stripped, plus the staging twin
 	@./scripts/stage.sh
 
 publish-print: stage ## print the publish report and the script, and run nothing
@@ -57,8 +60,8 @@ publish-print: stage ## print the publish report and the script, and run nothing
 publish.sh: stage ## write just the runnable script, ready to read and then run
 	@./scripts/publish-script.sh $(ADDR)
 
-republish-print: stage ## print the transaction that redeploys the private /preview twin
-	@gnopm -C _stage publish -print -republish $(REALM)/preview -addr $(ADDR)
+republish-print: stage ## print the transaction that redeploys the private staging twin
+	@gnopm -C _stage publish -print -republish $(PREVIEW) -addr $(ADDR)
 
 ##@ The web front-end
 

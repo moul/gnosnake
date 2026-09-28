@@ -76,10 +76,16 @@ Tracking issue: [moul/gno-contracts#249](https://github.com/moul/gno-contracts/i
 
 ## 4. Environments, when there is no testnet
 
-- [x] **A `/preview` twin: the same source at a second path, `private = true`, redeployed
-  freely.** Until a suitable testnet exists this *is* the staging environment. Only
-  `gnomod.toml` differs; if anything else ever has to, the design is wrong, because a realm
-  that behaves differently in staging is not the thing you tested.
+- [x] **A twin at `r/<ns>/preview/<name>`: the same source at a second path,
+  `private = true`, redeployed freely.** Until a suitable testnet exists this *is* the
+  staging environment. Only `gnomod.toml` differs; if anything else ever has to, the design
+  is wrong, because a realm that behaves differently in staging is not the thing you tested.
+- [x] **A package's name must equal the last element of its path.** The chain enforces it at
+  deploy time and `gno lint` does not, so the first thing that tells you is a transaction you
+  already paid for. That is why the twin is `r/<ns>/preview/<name>` and not
+  `r/<ns>/<name>/preview`: the latter would have to declare `package preview` and would no
+  longer be the same source. Learned on 2026-09-28 from a refused deploy, which also reverted
+  the production realm batched beside it. Now `make guards` § `guard-pkgname`.
 - [x] **`make dev` runs the whole thing against a local `gnodev`** with no accounts to
   create and nothing to configure.
 - [ ] **A testnet target.** Tracked as an issue in each repository. Not done: the current

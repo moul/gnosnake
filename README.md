@@ -7,6 +7,7 @@
 
 <p align="center">
   <a href="https://github.com/moul/gnosnake/actions/workflows/ci.yml"><img src="https://github.com/moul/gnosnake/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://gnoscope.com/realm/r/moul/gnosnake"><img src="https://gnoscope.com/_badges/shield/status/r/moul/gnosnake?network=mainnet" alt="realm status on mainnet"></a>
   <a href="./CHECKLIST.md"><img src="https://img.shields.io/badge/web2.5-checklist-22c55e" alt="checklist"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-97ca00.svg" alt="License"></a>
 </p>
@@ -45,7 +46,7 @@ exists because of it. That trade is the whole corner.
 ```
 p/moul/gnosnake/v0      the simulator. deterministic, no chain import.
 r/moul/gnosnake         seeds, replay, the leaderboard, the pages.
-r/moul/gnosnake/preview the same source at a second path, private = true. generated.
+r/moul/preview/gnosnake the same source at a second path, private = true. generated.
 web/                    a static page. no build step, no node_modules.
 ```
 
