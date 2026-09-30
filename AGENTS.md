@@ -44,6 +44,26 @@ make repin   # after any deliberate change to Render. Then read the diff.
 - **A raw string literal cannot contain a backtick**, and the pinned pages contain fenced
   code blocks. `{BT}` stands in for one and the test restores it.
 
+## The signing path in `web/`
+
+`crypto.js`, `amino.js` and `session.js` put a real gno signature on the wire from a browser.
+They are checked against documents `gnokey` itself produced (`web/amino.test.js`) and against
+the live chain (`web/session.test.js`); both run in CI. Four things here are easy to get
+wrong in a way that looks fine:
+
+- **`gas_wanted` is zigzag, not a plain varint.** 3,000,000 goes on the wire as 6,000,000.
+- **A `gpub1` string is a protobuf `Any`**, not the raw key behind a fixed prefix. The
+  cosmos-style four-byte prefix produces a valid-looking string the chain does not know.
+- **The sign bytes are `sortJSON(aminoJSON(signDocPayload))`**, with every number a string and
+  the fee restated as `{amount:[{denom,amount}],gas}`. A key out of order is a signature
+  rejected with nothing useful in the message.
+- **A session's account number and sequence are its own**, read from
+  `auth/accounts/<master>/session/<addr>`, one level deeper than a plain account. Decoding
+  that path as a `BaseAccount` yields a silent zero.
+
+Changing any of them means regenerating the fixtures from `gnokey`, not adjusting the
+expected values by hand.
+
 ## Deploying
 
 `make stage` builds `_stage/`, which is what actually goes on chain: source, README and

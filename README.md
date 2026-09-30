@@ -66,6 +66,23 @@ make web     # the front-end at http://127.0.0.1:8080
 make repin   # regenerate the pinned Render output, then read the diff
 ```
 
+## Playing without a popup
+
+An **account session** is a key this page holds, delegated by your account and scoped to one
+realm, capped in GNOT, expiring in hours. Once it is granted, every move signs locally with no
+wallet prompt, and the chain still sees **you** as the caller, so your seat and your record
+stay yours.
+
+Granting it is one command, because no wallet can do it: Adena signs `/bank.MsgSend`,
+`/vm.m_call`, `/vm.m_addpkg` and `/vm.m_run`, and `/auth.m_create_session` is not among them.
+The page builds the command with your key already in it.
+
+The private key lives in `localStorage`. That is a real exposure and the page says so: what
+protects you is the grant, not the key. One realm, one budget, and it expires on its own.
+
+The signing path is `web/crypto.js`, `web/amino.js` and `web/session.js`, checked against
+documents `gnokey` itself produced and against the live chain, in CI.
+
 ## What it does not do
 
 **No anti-bot anything.** See above. It is a stated limit, not an oversight.

@@ -24,6 +24,15 @@ jobs:
       - name: The browser engine agrees with the gno fixtures
         run: node web/engine.test.js
 
+      # The signing path is the one place a browser can be wrong in a way that
+      # costs somebody a transaction. These check it against documents gnokey
+      # itself produced, and against the live chain where only the chain can
+      # say (session.test.js skips, loudly, if the node does not answer).
+      - name: The encoder is byte-identical to gnokey
+        run: node web/amino.test.js
+      - name: Sessions
+        run: node web/session.test.js
+
   gno:
     runs-on: ubuntu-latest
     steps:

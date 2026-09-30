@@ -2,6 +2,8 @@
 // is the score the realm will recompute, and the thing it sends is the moves.
 import * as e from "./engine.js";
 import { NETWORKS, qevalString, wallet, gnokeyCommand } from "./chain.js";
+import * as onboarding from "./onboarding.js";
+import * as gnosession from "./session.js";
 
 const $ = (id) => document.getElementById(id);
 const PX = 32;
@@ -9,7 +11,7 @@ const ctx = $("board").getContext("2d");
 
 const state = {
   net: NETWORKS.mainnet, netName: "mainnet", account: null,
-  seed: 0, moves: "", pending: ".", timer: null, result: e.run(1, ""),
+  seed: 0, moves: "", pending: ".", timer: null, result: e.run(1, ""), session: null, grant: null,
 };
 
 const say = (m, cls = "") => { const s = $("status"); s.textContent = m; s.className = `status ${cls}`; };
@@ -69,7 +71,7 @@ async function newRun() {
   } else {
     try {
       say("taking a seed…");
-      await wallet.call(state.net, state.account, "Start", []);
+      await send("Start", []);
       await new Promise((r) => setTimeout(r, 1500));
       state.seed = Number(await qevalString(state.net, `PendingOf("${state.account}")`).catch(() => "0")) || 0;
       if (!state.seed) throw new Error("the realm issued no seed");
@@ -91,7 +93,7 @@ async function submit() {
     // Deliberately large: Submit replays every tick, so it costs far more than
     // a normal call. A browser cannot simulate, so it over-provides and the
     // page says so rather than quoting a number it did not measure.
-    await wallet.call(state.net, state.account, "Submit", [state.moves]);
+    await send("Submit", [state.moves]);
     say(`submitted ${state.result.score}`, "live");
     setTimeout(refresh, 1500);
   } catch (err) { warn(err.message); say("refused", "bad"); }
@@ -146,6 +148,34 @@ $("network").addEventListener("change", (ev) => {
 function setCmd() {
   $("cmd").textContent =
     gnokeyCommand(state.net, "Start", []) + "\n\n" + gnokeyCommand(state.net, "Submit", ["<moves>"]);
+}
+
+
+// The session panel. When a session is granted, the app signs here; otherwise it
+// falls back to the wallet. Same caller either way: the chain sees the master.
+const sessionPanel = onboarding.mount({
+  el: $("session"),
+  net: () => state.net,
+  getAccount: () => state.account,
+  setAccount: (addr) => {
+    // Named, not connected: enough to read a grant and to be the caller in one,
+    // and it never lets this page sign anything the session cannot.
+    state.account = addr;
+    say(`playing as ${addr.slice(0, 10)}…`, "live");
+  },
+  keyName: "YOURKEY",
+  onChange: ({ session, grant }) => { state.session = session; state.grant = grant; },
+});
+
+/** send signs with the session when there is one, and with the wallet when not. */
+async function send(fn, args) {
+  if (state.grant) {
+    return gnosession.call({
+      rpcUrl: state.net.rpc, chainId: state.net.chainId,
+      session: state.session, grant: state.grant, func: fn, args,
+    });
+  }
+  return wallet.call(state.net, state.account, fn, args);
 }
 
 setCmd();

@@ -111,6 +111,25 @@ Tracking issue: [moul/gno-contracts#249](https://github.com/moul/gno-contracts/i
   first visit and a shared link both work.
 - [x] **Signing is one function with a pasteable fallback.** Where there is no wallet, the
   page prints the `gnokey` command that does the same thing.
+- [x] **An account session removes the wallet from the loop.** The player grants a key this
+  page holds, scoped to one realm, capped in GNOT and expiring in hours; every action after
+  that signs locally with no popup. The chain still sees the **master** as the caller, so the
+  seat, the record and the leaderboard entry stay the player's own, which an ordinary
+  throwaway account could never be.
+- [x] **The grant is the security model, not the secrecy of the key.** The private key is in
+  `localStorage`, so anything that can run script on the page can sign inside the grant. That
+  is stated on the panel rather than hidden, and it is why the offered lifetimes are hours and
+  the budgets are fractions of a GNOT.
+- [x] **A grant is checked for scope, not just for existence.** A live session granted for
+  another realm is a perfectly valid grant that fails every call here, so the panel matches
+  AllowPaths by **path segment**: `.../gno4` must not cover `.../gno42`, and a trailing
+  version digit is not a segment.
+- [x] **Nothing needs a wallet extension.** An address can be typed in; the grant is a command
+  the player runs themselves, so the page never holds anything that was not minted for it.
+- [ ] **One click to grant.** Not possible today: a wallet can sign `/bank.MsgSend`,
+  `/vm.m_call`, `/vm.m_addpkg` and `/vm.m_run`, and `/auth.m_create_session` is not among
+  them, so onboarding needs one terminal command. This is the single biggest gap between
+  gno's session design and the web2.5 experience it enables.
 - [x] **A run is a string.** A seed and its moves reproduce the whole game on any machine,
   which is what makes the leaderboard verifiable, the replay drawable, and a bug report
   something you can paste.

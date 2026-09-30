@@ -30,3 +30,17 @@ footer { margin-top:2rem; border-top:1px solid var(--line); padding-top:1rem; fo
 footer a { color:inherit; }
 .fine { font-size:.85rem; }
 p { color:var(--muted); font-size:.9rem; }
+
+/* The session panel. Same visual language as everything else: no new colours,
+   one status green, and a command block that is obviously meant to be copied. */
+.sess-row { display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; margin:.6rem 0; }
+.sess-row label { font-size:.85rem; color:var(--muted); }
+.sess-live { color:#16a34a; }
+/* A pubkey is 100 characters with no break opportunity, so without this the
+   command block scrolls sideways and the player copies half a line. */
+#session pre { user-select:all; overflow-wrap:anywhere; white-space:pre-wrap; }
+#session code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.85em; }
+#session details summary { cursor:pointer; font-size:.85rem; color:var(--muted); }
+#session input { font:inherit; color:inherit; background:var(--panel); border:1px solid var(--line);
+  border-radius:8px; padding:.35rem .6rem; width:22ch; font-family:ui-monospace,monospace; font-size:.85rem; }
+#session input[aria-invalid="true"] { border-color:#c0392b; }
